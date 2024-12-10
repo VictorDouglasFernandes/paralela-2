@@ -1,0 +1,6 @@
+/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/file_transfer_lib.dir
+/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/server.dir
+/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/client.dir
+/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/filenode.dir
+/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/edit_cache.dir
+/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/rebuild_cache.dir
