@@ -50,5 +50,5 @@ Thumbs.db
 
 # Project specific
 archive/
-*.txt
+# *.txt
 *.part 
