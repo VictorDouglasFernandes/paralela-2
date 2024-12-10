@@ -1,3 +1,11 @@
+/**
+ * @file FileTransfer.cpp
+ * @brief Implementation of file transfer operations
+ * 
+ * This file contains the implementation of the FileTransfer class which handles
+ * the actual sending and receiving of files over a socket connection.
+ */
+
 #include "FileTransfer.h"
 #include <fstream>
 #include <thread>
@@ -8,17 +16,25 @@
 #include <iostream>
 
 // Initialize static members
-std::atomic<int> FileTransfer::activeTransfers(0);
-std::mutex FileTransfer::transferMutex;
+std::atomic<int> FileTransfer::activeTransfers(0);  ///< Counter for active transfers
+std::mutex FileTransfer::transferMutex;             ///< Mutex for thread safety
 
+/**
+ * @brief Calculates the chunk size based on active transfers
+ * @return Size of chunks to use for transfer
+ */
 size_t FileTransfer::calculateChunkSize() {
     int transfers = activeTransfers.load();
     if (transfers <= 0) transfers = 1;
     return BASE_TRANSFER_RATE / transfers;
 }
 
-// Function to send a file over a socket connection
-// Takes the socket descriptor and filename as parameters
+/**
+ * @brief Sends a file over a socket connection
+ * @param socket Socket descriptor
+ * @param filename Path to the file to send
+ * @return true if successful, false otherwise
+ */
 bool FileTransfer::sendFile(int socket, const std::string& filename) {
     // Increment active transfers counter
     activeTransfers++;
@@ -71,10 +87,17 @@ bool FileTransfer::sendFile(int socket, const std::string& filename) {
     return true;
 }
 
-// Function to receive a file over a socket connection
-// Parameters: socket descriptor, filename to save as, and whether to print content
+/**
+ * @brief Receives a file over a socket connection
+ * @param socket Socket descriptor
+ * @param filename Path where to save the received file
+ * @param printContent Whether to print the file content after receiving
+ * @return true if successful, false otherwise
+ */
 bool FileTransfer::receiveFile(int socket, const std::string& filename, bool printContent) {
     activeTransfers++;
+
+    std::cout << "Start receiving file" << "\n";
 
     // Validate filename
     if (filename.empty()) {
@@ -83,21 +106,59 @@ bool FileTransfer::receiveFile(int socket, const std::string& filename, bool pri
         return false;
     }
 
-    // Create temporary filename with .part extension
-    std::string tempFilename = filename + ".part";
-
-    // Create necessary directories for the file path
+    // Create necessary directories
     try {
-        auto parentPath = std::filesystem::path(filename).parent_path();
+        std::filesystem::path filePath(filename);
+        auto parentPath = filePath.parent_path();
         if (!parentPath.empty()) {
-            std::filesystem::create_directories(parentPath);
+            // Check if directory is writable before attempting to create it
+            if (std::filesystem::exists(parentPath)) {
+                if (access(parentPath.c_str(), W_OK) != 0) {
+                    std::cerr << "Error: No write permission for directory: " << parentPath << std::endl;
+                    std::cerr << "Please choose a different directory with write permissions." << std::endl;
+                    activeTransfers--;
+                    return false;
+                }
+            } else {
+                std::filesystem::create_directories(parentPath);
+                std::cout << "Created directory structure: " << parentPath << std::endl;
+                
+                // Verify we can write to the created directory
+                if (access(parentPath.c_str(), W_OK) != 0) {
+                    std::cerr << "Error: Cannot write to created directory: " << parentPath << std::endl;
+                    std::cerr << "Please choose a different directory with write permissions." << std::endl;
+                    activeTransfers--;
+                    return false;
+                }
+            }
         }
     } catch (const std::filesystem::filesystem_error& e) {
-        std::cerr << "Failed to create directories: " << e.what() << std::endl;
+        std::cerr << "Failed to create/check directories: " << e.what() << std::endl;
         activeTransfers--;
         return false;
     }
-    
+
+    // Create temporary filename with .part extension
+    std::string tempFilename = filename + ".part";
+    std::cout << "Creating temporary file: " << tempFilename << std::endl;
+
+    // Test if we can create the file before proceeding
+    {
+        std::ofstream testFile(tempFilename);
+        if (!testFile) {
+            std::cerr << "Error: Cannot create file in " << std::filesystem::path(filename).parent_path() << std::endl;
+            std::cerr << "Please ensure you have write permissions for this location." << std::endl;
+            if (std::filesystem::path(filename).parent_path() == "/System") {
+                std::cerr << "Note: The /System directory is protected by System Integrity Protection (SIP) on macOS." << std::endl;
+                std::cerr << "Please choose a different directory, such as /tmp/ or your home directory." << std::endl;
+            }
+            activeTransfers--;
+            return false;
+        }
+        testFile.close();
+        std::filesystem::remove(tempFilename);
+    }
+
     // Open temporary file for writing
     std::ofstream tempFile(tempFilename, std::ios::binary);
     if (!tempFile) {
