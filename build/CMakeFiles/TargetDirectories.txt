@@ -1,6 +1,5 @@
-/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/file_transfer_lib.dir
-/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/server.dir
-/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/client.dir
-/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/filenode.dir
-/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/edit_cache.dir
-/Users/victordouglasfernandes/.cursor-tutor/build/CMakeFiles/rebuild_cache.dir
+/home/UFSC/paralela-2/build/CMakeFiles/file_transfer_lib.dir
+/home/UFSC/paralela-2/build/CMakeFiles/server.dir
+/home/UFSC/paralela-2/build/CMakeFiles/client.dir
+/home/UFSC/paralela-2/build/CMakeFiles/edit_cache.dir
+/home/UFSC/paralela-2/build/CMakeFiles/rebuild_cache.dir

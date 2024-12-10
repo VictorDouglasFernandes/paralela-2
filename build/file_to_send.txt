@@ -1,4 +1,0 @@
-This is a test file content.
-Hello, World!
-Testing file transfer functionality.
-Uhull

@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <atomic>
 #include <mutex>
+#include <unistd.h>
 
 /**
  * @class FileTransfer
